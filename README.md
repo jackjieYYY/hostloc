@@ -1,8 +1,10 @@
 # hostloc
 
-graph LR
-A[Start] --> B[Parse Order Data from Request]
-B --> C[Generate Invoice ID, Creation and Expiration Dates]
-C --> D[Save Invoice to DynamoDB]
-D --> E[Build Response]
-E --> F[End]
+	```mermaid
+		graph TD
+    	id1[带文本的矩形]
+    	id2(带文本的圆角矩形)
+    	id3>带文本的不对称的矩形]
+    	id4{带文本的菱形}
+    	id5((带文本的圆形))
+    ```
