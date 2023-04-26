@@ -49,24 +49,6 @@
 
 ## 系统设计
 
-## API设计
-
-1. saveInvoice
-* Method: POST
-* Header: 使用 Base Authentication 和 HMAC 验证
-* Body: 包含订单信息的 JSON 数据
-* Describe: 商家保存/发布一个电子发票，以供客人下载保存
-
-2. getInvoice
-* Method: GET
-* Header: 使用 Base Authentication 和 HMAC 验证
-* Parameters: MD5 HASH KEY
-* Describe: 客人通过此公开API访问并获取PDF格式的发票
-
-3. getRandomKey
-* Method: GET
-* Describe: 返回一个随机数作为客户的 key，用于进行 HMAC 哈希
-
 ## 数据库设计
 
 ## Table(Invoices)
@@ -78,17 +60,18 @@
 | orderNumber      | String     | 下单单号 | 123
 | orderRefference      | String     | 参考 | 123
 | type      | Int     | 送餐的形式 | pickup
-| initTimeStamp      | Int     | 生成时间 | 1682494947
+| createdat      | Int     | 生成时间 | 1682494947
 | expiredAt      | Int     | 过期时间 | 1682494947
 | restaraunt      | String     | 餐厅名字 | Melbourne Best
 | address      | String     | 餐厅地址 | 123 bourke st, Melbourne Vic
-| Phone      | String     | 联系电话 | 0411111111
+| phone      | String     | 联系电话 | 0411111111
 | qrcode      | String     | 存储该invoice的api地址 | 202cb962ac59075b964b07152d234b70
 
 ## Table(Session)
 | Key  | Type | Describe  | Value |
 | ------------- |:-------------:|:-------------:|:-------------:|
 | sessionID      | String     | uuid格式 | 123e4567-e89b-12d3-a456-426614174000
+| createdAt      | Int     | 生成时间 | 1682494947
 | expiredAt      | Int     | 过期时间 | 1682494947
 
 ## Table(statistics)
@@ -108,10 +91,7 @@
 | longUrl      | String     | 原始长 URL | /invoice/abc8888
 | createdat      | Number     | 短 URL 创建的时间戳 | 1682494947
 | expiredAt      | Number     | 	短 URL 的过期时间戳 | 123456
-| hitcount      | Number     | 	访问次数 | 123456
-
-
-
+| hitCount      | Number     | 	访问次数 | 123456
 
 
 ## 数据流程\业务逻辑
@@ -145,6 +125,25 @@ Acceptance Criteria:
 客人能够查看和保存 PDF 文件
 
 
+## API Gateway设计
+
+1. randomKey
+* Method: GET
+* Describe: 返回一个随机数作为客户的 key，用于进行 HMAC 哈希
+
+
+2. invoice
+* Method: POST
+* Body: 包含订单信息的 JSON 数据
+* Describe: 该API存在身份验证，在Lambda Authorizer中，选择Authorization Lambda函数
+* Describe: 当通过身份验证后，转发到post invoice 的lambda函数。商家保存/发布一个电子发票，以供客人下载保存
+
+2. invoice
+* Method: GET
+* Describe: 客人通过此公开API访问并获取PDF格式的发票
+
+
+
 ## Lambda 设计
 
 根据上述 User Story，我们需要实现 3 个 AWS Lambda 函数来处理不同的 API 请求。
@@ -160,7 +159,7 @@ C --> D[Build Response]
 D --> E[End]
 ```
 
-* auth Lambda 函数
+* authorization Lambda 函数
 
 该函数负责进行身份验证 http auth hmac。如果身份验证成功，进行后续的处理。
 
